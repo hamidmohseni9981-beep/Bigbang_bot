@@ -3,8 +3,8 @@ import telebot
 TOKEN = '8604260086:AAGvY_Y6MALYk8T72zN8cMF7tu2TRdcNCVU'
 bot = telebot.TeleBot(TOKEN)
 
-ADMIN_ID = 6202317657  # آیدی عددی دقیق خودت
-SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس (مثلا: Hamid_Support)
+ADMIN_ID = 1183150398  # آیدی عددی دقیق خودت
+SUPPORT_USERNAME = "Setayesh_rff"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس (مثلا: Hamid_Support)
 
 # منوی محصولات با تخفیف‌های ویژه تا ۳۱ مرداد
 def get_main_markup():
@@ -19,7 +19,7 @@ def get_main_markup():
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, "سلام! به بیگ بنگ بیولوژی خوش آمدید.\nمحصول مورد نظرت رو انتخاب کن:", reply_markup=get_main_markup())
+    bot.send_message(message.chat.id, "سلام! به ربات بیگ بنگ خوش آمدید.\nمحصول مورد نظرت رو انتخاب کن:", reply_markup=get_main_markup())
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("buy_") or call.data in ["shimi", "fizik", "full"])
 def process_buy(call):
