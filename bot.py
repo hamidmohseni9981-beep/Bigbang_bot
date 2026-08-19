@@ -3,8 +3,8 @@ import telebot
 TOKEN = '8604260086:AAGvY_Y6MALYk8T72zN8cMF7tu2TRdcNCVU'
 bot = telebot.TeleBot(TOKEN)
 
-ADMIN_ID = 1183150398  # آیدی عددی دقیق خودت
-SUPPORT_USERNAME = "Setayesh_rff"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس (مثلا: Hamid_Support)
+ADMIN_ID = 6202317657  # آیدی عددی دقیق خودت
+SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس (مثلا: Hamid_Support)
 
 # منوی محصولات با تخفیف‌های ویژه تا ۳۱ مرداد
 def get_main_markup():
