@@ -10,10 +10,13 @@ SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو 
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        telebot.types.InlineKeyboardButton("🧬 زیست جامع - ۳۵۹ هزار تومان (تخفیف ویژه)", callback_data="buy_zist"),
-        telebot.types.InlineKeyboardButton("🧪 شیمی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="shimi"),
-        telebot.types.InlineKeyboardButton("💡 فیزیک جامع - ۲۹۹ هزار تومان (تخفیف ویژه)", callback_data="fizik"),
-        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر سه با تخفیف) - ۸۰۰ هزار تومان", callback_data="full")
+        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - ۳۵۹ هزار تومان (تخفیف ویژه)", callback_data="bio"),
+        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="chem"),
+        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - ۲۹۹ هزار تومان (تخفیف ویژه)", callback_data="phys"),
+        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="math"),
+        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - ۱۰۵۰ هزار تومان (تخفیف ویژه‌تر)", callback_data="all_pack_v2")
+    )
+    return markup
     )
     return markup
 
