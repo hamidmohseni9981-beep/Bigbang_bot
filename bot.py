@@ -4,19 +4,17 @@ TOKEN = '8604260086:AAGvY_Y6MALYk8T72zN8cMF7tu2TRdcNCVU'
 bot = telebot.TeleBot(TOKEN)
 
 ADMIN_ID = 6202317657  # آیدی عددی دقیق خودت
-SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس (مثلا: Hamid_Support)
+SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
 
 # منوی محصولات با تخفیف‌های ویژه تا ۳۱ مرداد
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - ۳۵۹ هزار تومان (تخفیف ویژه)", callback_data="bio"),
-        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="chem"),
-        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - ۲۹۹ هزار تومان (تخفیف ویژه)", callback_data="phys"),
+        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - ۳۵۹ هزار تومان (تخفیف ویژه)", callback_data="buy_zist"),
+        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="shimi"),
+        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - ۲۹۹ هزار تومان (تخفیف ویژه)", callback_data="fizik"),
         telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="math"),
-        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - ۱۰۵۰ هزار تومان (تخفیف ویژه‌تر)", callback_data="all_pack_v2")
-    )
-    return markup
+        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - ۱۰۵۰ هزار تومان (تخفیف ویژه‌تر)", callback_data="full_4")
     )
     return markup
 
@@ -24,20 +22,21 @@ def get_main_markup():
 def send_welcome(message):
     bot.send_message(message.chat.id, "سلام! به ربات بیگ بنگ خوش آمدید.\nمحصول مورد نظرت رو انتخاب کن:", reply_markup=get_main_markup())
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("buy_") or call.data in ["shimi", "fizik", "full"])
+@bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
 def process_buy(call):
     prices = {
-        "buy_zist": ("زیست جامع", "359,000"),
-        "shimi": ("شیمی جامع", "319,000"),
-        "fizik": ("فیزیک جامع", "299,000"),
-        "full": ("پکیج کامل (هر سه با تخفیف)", "800,000")
+        "buy_zist": ("بانک تست زیست جامع", "359,000"),
+        "shimi": ("بانک تست شیمی جامع", "319,000"),
+        "fizik": ("بانک تست فیزیک جامع", "299,000"),
+        "math": ("بانک تست ریاضی جامع", "319,000"),
+        "full_4": ("پکیج کامل (هر ۴ بانک تست)", "1,050,000")
     }
     
     item_name, price = prices[call.data]
     
     text = (
         f"💳 خرید {item_name}\n\n"
-        f"💰 مبلغ قابل پرداخت با تخفیف: {price} تومان\n"
+        f"💰 مبلغ قابل پرداخت: {price} تومان\n"
         f"⚠️ توجه: این تخفیف فقط تا ۳۱ مرداد معتبر است.\n\n"
         f"شماره کارت: `5022291535771289` به نام سیدحمیدرضامحسنی راد\n\n"
         "لطفاً واریز کن و عکس فیش رو همینجا بفرست تا بررسی کنم."
@@ -74,7 +73,6 @@ def handle_receipt(message):
     file_id = message.photo[-1].file_id if message.photo else message.document.file_id
     bot.send_photo(ADMIN_ID, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
     
-    # اینجا به کاربر به جای پیام معمولی، دکمه ارتباط با پشتیبانی رو می‌دیم
     user_markup = telebot.types.InlineKeyboardMarkup()
     user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی و ارسال سوال", url=f"https://t.me/{SUPPORT_USERNAME}"))
     
@@ -82,7 +80,7 @@ def handle_receipt(message):
         message.chat.id, 
         "✅ فیش شما دریافت شد.\n"
         "پس از بررسی توسط مدیریت، دسترسی برای شما ارسال خواهد شد.\n\n"
-        "اگر سوالی داری یا می‌وای پیگیر بشی، از طریق دکمه زیر با پشتیبانی در ارتباط باش:",
+        "اگر سوالی داری یا می‌خوای پیگیر بشی، از طریق دکمه زیر با پشتیبانی در ارتباط باش:",
         reply_markup=user_markup
     )
 
@@ -90,7 +88,6 @@ def handle_receipt(message):
 def approve_user(call):
     user_id = int(call.data.split("_")[1])
     
-    # پیامی که به کاربر بعد از تایید فیش میره (شامل لینک پشتیبانی یا لینک فایل)
     user_markup = telebot.types.InlineKeyboardMarkup()
     user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
     
