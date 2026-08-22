@@ -6,7 +6,7 @@ bot = telebot.TeleBot(TOKEN)
 ADMIN_ID = 6202317657  # آیدی عددی دقیق خودت
 SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
 
-# منوی محصولات با تخفیف‌های ویژه تا ۳۱ مرداد
+# منوی محصولات با تخفیف‌های ویژه تا 3 شهریور
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
