@@ -3,18 +3,23 @@ import telebot
 TOKEN = '8604260086:AAGvY_Y6MALYk8T72zN8cMF7tu2TRdcNCVU'
 bot = telebot.TeleBot(TOKEN)
 
-ADMIN_ID = 6202317657  # آیدی عددی دقیق خودت
-SUPPORT_USERNAME = "Hamid9981"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
+# لیست آیدی‌های عددی ادمین‌ها (خودت و اکانت پشتیبانی)
+ADMIN_IDS = [
+    6202317657,     # آیدی عددی اول (خودت)
+    8304730388       # ⚠️ آیدی عددی اکانت دوم (پشتیبانی) رو اینجا به جای این اعداد بذار
+]
 
-# منوی محصولات با تخفیف‌های ویژه تا 3 شهریور
+SUPPORT_USERNAME = "Sup_Bigbang"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
+
+# منوی محصولات با قیمت‌های جدید
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - ۳۵۹ هزار تومان (تخفیف ویژه)", callback_data="buy_zist"),
-        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="shimi"),
-        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - ۲۹۹ هزار تومان (تخفیف ویژه)", callback_data="fizik"),
-        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - ۳۱۹ هزار تومان (تخفیف ویژه)", callback_data="math"),
-        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - ۱۰۵۰ هزار تومان (تخفیف ویژه‌تر)", callback_data="full_4")
+        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - ۴۹۹ هزار تومان", callback_data="buy_zist"),
+        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - ۴۴۹ هزار تومان", callback_data="shimi"),
+        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - ۴۱۹ هزار تومان", callback_data="fizik"),
+        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - ۴۴۹ هزار تومان", callback_data="math"),
+        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - ۱,۵۰۰,۰۰۰ تومان (تخفیف ویژه)", callback_data="full_4")
     )
     return markup
 
@@ -25,19 +30,18 @@ def send_welcome(message):
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
 def process_buy(call):
     prices = {
-        "buy_zist": ("بانک تست زیست جامع", "359,000"),
-        "shimi": ("بانک تست شیمی جامع", "319,000"),
-        "fizik": ("بانک تست فیزیک جامع", "299,000"),
-        "math": ("بانک تست ریاضی جامع", "319,000"),
-        "full_4": ("پکیج کامل (هر ۴ بانک تست)", "1,050,000")
+        "buy_zist": ("بانک تست زیست جامع", "499,000"),
+        "shimi": ("بانک تست شیمی جامع", "449,000"),
+        "fizik": ("بانک تست فیزیک جامع", "419,000"),
+        "math": ("بانک تست ریاضی جامع", "449,000"),
+        "full_4": ("پکیج کامل (هر ۴ بانک تست)", "1,500,000")
     }
     
     item_name, price = prices[call.data]
     
     text = (
         f"💳 خرید {item_name}\n\n"
-        f"💰 مبلغ قابل پرداخت: {price} تومان\n"
-        f"⚠️ توجه: این تخفیف فقط تا 3 شهریور معتبر است.\n\n"
+        f"💰 مبلغ قابل پرداخت: {price} تومان\n\n"
         f"شماره کارت: `5022291535771289` به نام سیدحمیدرضامحسنی راد\n\n"
         "لطفاً واریز کن و عکس فیش رو همینجا بفرست تا بررسی کنم."
     )
@@ -71,7 +75,13 @@ def handle_receipt(message):
     )
     
     file_id = message.photo[-1].file_id if message.photo else message.document.file_id
-    bot.send_photo(ADMIN_ID, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
+    
+    # ارسال فیش به همه ادمین‌های لیست
+    for admin_id in ADMIN_IDS:
+        try:
+            bot.send_photo(admin_id, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
+        except Exception as e:
+            print(f"خطا در ارسال به ادمین {admin_id}: {e}")
     
     user_markup = telebot.types.InlineKeyboardMarkup()
     user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی و ارسال سوال", url=f"https://t.me/{SUPPORT_USERNAME}"))
@@ -86,6 +96,11 @@ def handle_receipt(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_"))
 def approve_user(call):
+    # چک کردن اینکه آیا کاربری که دکمه رو زده ادمین هست یا نه
+    if call.from_user.id not in ADMIN_IDS:
+        bot.answer_callback_query(call.id, "❌ شما دسترسی ادمین ندارید!", show_alert=True)
+        return
+        
     user_id = int(call.data.split("_")[1])
     
     user_markup = telebot.types.InlineKeyboardMarkup()
@@ -101,7 +116,7 @@ def approve_user(call):
     bot.edit_message_caption(
         chat_id=call.message.chat.id, 
         message_id=call.message.message_id, 
-        caption=call.message.caption + "\n\n🟢 **وضعیت: تایید شد**", 
+        caption=call.message.caption + f"\n\n🟢 **وضعیت: تایید شد توسط ادمین**", 
         parse_mode="Markdown"
     )
 
