@@ -30,11 +30,11 @@ def send_welcome(message):
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
 def process_buy(call):
     prices = {
-        "buy_zist": ("بانک تست زیست جامع", "499,000"),
-        "shimi": ("بانک تست شیمی جامع", "449,000"),
-        "fizik": ("بانک تست فیزیک جامع", "419,000"),
-        "math": ("بانک تست ریاضی جامع", "449,000"),
-        "full_4": ("پکیج کامل (هر ۴ بانک تست)", "1,500,000")
+        "buy_zist": ("بانک تست زیست جامع", "400,000"),
+        "shimi": ("بانک تست شیمی جامع", "350,000"),
+        "fizik": ("بانک تست فیزیک جامع", "320,000"),
+        "math": ("بانک تست ریاضی جامع", "350,000"),
+        "full_4": ("پکیج کامل (هر ۴ بانک تست)", "1,200,000")
     }
     
     item_name, price = prices[call.data]
