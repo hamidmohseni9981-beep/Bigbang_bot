@@ -11,7 +11,7 @@ ADMIN_IDS = [
 
 SUPPORT_USERNAME = "Sup_Bigbang"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
 
-# منوی محصولات با قیمت‌های ویژه امروز
+# منوی شیشه‌ای محصولات (داخل پیام)
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
@@ -23,9 +23,30 @@ def get_main_markup():
     )
     return markup
 
+# کیبورد ثابت (پایین صفحه چت برای کاربر)
+def get_persistent_keyboard():
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, persistent=True)
+    button_start = telebot.types.KeyboardButton("🚀 منوی اصلی / شروع")
+    button_support = telebot.types.KeyboardButton("💬 ارتباط با پشتیبانی")
+    button_help = telebot.types.KeyboardButton("راهنمای خرید 📄")
+    keyboard.add(button_start)
+    keyboard.add(button_support, button_help)
+    return keyboard
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, "سلام! به ربات بیگ بنگ خوش آمدید.\n\n⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**\nمحصول مورد نظرت رو انتخاب کن:", reply_markup=get_main_markup(), parse_mode="Markdown")
+    bot.send_message(
+        message.chat.id, 
+        "سلام! به ربات بیگ بنگ خوش آمدید.\n\n⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**\nمحصول مورد نظرت رو انتخاب کن:", 
+        reply_markup=get_main_markup(), 
+        parse_mode="Markdown"
+    )
+    # ارسال کیبورد ثابت پایین صفحه
+    bot.send_message(
+        message.chat.id,
+        "👇 از دکمه‌های زیر صفحه هم می‌تونی برای دسترسی سریع استفاده کنی:",
+        reply_markup=get_persistent_keyboard()
+    )
 
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
 def process_buy(call):
@@ -96,7 +117,37 @@ def handle_receipt(message):
         reply_markup=user_markup
     )
 
-# هندلر برای وقتی که کاربر به جای عکس، متن بفرستد
+# هندلر برای دکمه‌های ثابت پایین صفحه
+@bot.message_handler(func=lambda message: message.text in ["🚀 منوی اصلی / شروع", "💬 ارتباط با پشتیبانی", "راهنمای خرید 📄"])
+def handle_persistent_buttons(message):
+    user_markup = telebot.types.InlineKeyboardMarkup()
+    user_markup.add(telebot.types.InlineKeyboardButton("💬 چت با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
+    
+    if message.text == "🚀 منوی اصلی / شروع":
+        bot.send_message(
+            message.chat.id,
+            "سلام دوباره! به منوی اصلی برگشتیم. محصول مورد نظرت رو انتخاب کن:",
+            reply_markup=get_main_markup()
+        )
+    elif message.text == "💬 ارتباط با پشتیبانی":
+        bot.send_message(
+            message.chat.id,
+            "برای ارتباط مستقیم با پشتیبانی و پرسیدن سوالات خود، روی دکمه زیر بزنید:",
+            reply_markup=user_markup
+        )
+    elif message.text == "راهنمای خرید 📄":
+        bot.send_message(
+            message.chat.id,
+            "📄 **راهنمای خرید بانک‌های تست بیگ بنگ:**\n\n"
+            "۱. از منوی بالا محصول مورد نظرت رو انتخاب کن.\n"
+            "۲. مبلغ رو به شماره کارت نوشته شده واریز کن.\n"
+            "۳. عکس اسکرین‌شات یا رسید فیش واریزی رو همینجا بفرست.\n"
+            "۴. پس از تایید توسط مدیریت، فایل یا لینک دسترسی برات ارسال میشه.",
+            parse_mode="Markdown",
+            reply_markup=user_markup
+        )
+
+# هندلر برای بقیه متن‌های متفرقه که کاربر می‌فرستد
 @bot.message_handler(func=lambda message: True)
 def handle_text_messages(message):
     user_markup = telebot.types.InlineKeyboardMarkup()
