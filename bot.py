@@ -6,26 +6,26 @@ bot = telebot.TeleBot(TOKEN)
 # لیست آیدی‌های عددی ادمین‌ها (خودت و اکانت پشتیبانی)
 ADMIN_IDS = [
     6202317657,     # آیدی عددی اول (خودت)
-    8304730388       # ⚠️ آیدی عددی اکانت دوم (پشتیبانی) رو اینجا به جای این اعداد بذار
+    8304730388       # ⚠️ آیدی عددی اکانت دوم (پشتیبانی) رو اینجا بذار (حتماً باید ربات رو استارت کرده باشه)
 ]
 
 SUPPORT_USERNAME = "Sup_Bigbang"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
 
-# منوی محصولات با قیمت‌های جدید
+# منوی محصولات با قیمت‌های ویژه امروز
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - 400 هزار تومان", callback_data="buy_zist"),
-        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - 350 هزار تومان", callback_data="shimi"),
-        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - 320 هزار تومان", callback_data="fizik"),
-        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - 350 هزار تومان", callback_data="math"),
-        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - 1,200,000 تومان (تخفیف ویژه)", callback_data="full_4")
+        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - ۴۰۰ هزار تومان (تخفیف امروز)", callback_data="buy_zist"),
+        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - ۳۵۰ هزار تومان (تخفیف امروز)", callback_data="shimi"),
+        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - ۳۲۰ هزار تومان (تخفیف امروز)", callback_data="fizik"),
+        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - ۳۵۰ هزار تومان (تخفیف امروز)", callback_data="math"),
+        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - ۱,۲۰۰,۰۰۰ تومان (تخفیف ویژه امروز)", callback_data="full_4")
     )
     return markup
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, "سلام! به ربات بیگ بنگ خوش آمدید.\nمحصول مورد نظرت رو انتخاب کن:", reply_markup=get_main_markup())
+    bot.send_message(message.chat.id, "سلام! به ربات بیگ بنگ خوش آمدید.\n\n⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**\nمحصول مورد نظرت رو انتخاب کن:", reply_markup=get_main_markup(), parse_mode="Markdown")
 
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
 def process_buy(call):
@@ -41,13 +41,15 @@ def process_buy(call):
     
     text = (
         f"💳 خرید {item_name}\n\n"
-        f"💰 مبلغ قابل پرداخت: {price} تومان\n\n"
+        f"💰 مبلغ قابل پرداخت: {price} تومان\n"
+        f"⚠️ **توجه: این قیمت فقط تا پایان امروز معتبر است.**\n\n"
         f"شماره کارت: `5022291535771289` به نام سیدحمیدرضامحسنی راد\n\n"
         "لطفاً واریز کن و عکس فیش رو همینجا بفرست تا بررسی کنم."
     )
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, 
                           text=text, parse_mode="Markdown")
 
+# هندلر برای دریافت عکس یا سند (فیش واریزی)
 @bot.message_handler(content_types=['photo', 'document'])
 def handle_receipt(message):
     user_id = message.from_user.id
@@ -91,6 +93,19 @@ def handle_receipt(message):
         "✅ فیش شما دریافت شد.\n"
         "پس از بررسی توسط مدیریت، دسترسی برای شما ارسال خواهد شد.\n\n"
         "اگر سوالی داری یا می‌خوای پیگیر بشی، از طریق دکمه زیر با پشتیبانی در ارتباط باش:",
+        reply_markup=user_markup
+    )
+
+# هندلر برای وقتی که کاربر به جای عکس، متن بفرستد
+@bot.message_handler(func=lambda message: True)
+def handle_text_messages(message):
+    user_markup = telebot.types.InlineKeyboardMarkup()
+    user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
+    
+    bot.send_message(
+        message.chat.id,
+        "⚠️ لطفاً برای ارسال فیش واریزی، **فقط عکس یا اسکرین‌شات فیش** را همینجا ارسال کنید.\n\n"
+        "اگر سوالی دارید یا در فرآیند خرید به مشکل برخوردید، از طریق دکمه زیر با پشتیبانی در ارتباط باشید:",
         reply_markup=user_markup
     )
 
