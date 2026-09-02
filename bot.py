@@ -12,8 +12,8 @@ ADMIN_IDS = [
 SUPPORT_USERNAME = "Sup_Bigbang"
 
 # لینک کانال‌های آرشیو رایگان پارسال
-FREE_ZIST_LINK = "https://t.me/BigbangBiology"  
-FREE_SHIMI_LINK = "https://t.me/BigbangBiology"  
+FREE_ZIST_LINK = "https://t.me/Bigbangzist"  
+FREE_SHIMI_LINK = "https://t.me/BigbangChem"  
 
 # منوی محصولات اصلی (شیشه‌ای - داخل پیام)
 def get_main_markup():
