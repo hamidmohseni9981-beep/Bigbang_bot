@@ -3,15 +3,19 @@ import telebot
 TOKEN = '8604260086:AAGvY_Y6MALYk8T72zN8cMF7tu2TRdcNCVU'
 bot = telebot.TeleBot(TOKEN)
 
-# لیست آیدی‌های عددی ادمین‌ها (خودت و اکانت پشتیبانی)
+# لیست آیدی‌های عددی ادمین‌ها (خودت و پشتیبانی)
 ADMIN_IDS = [
-    6202317657,     # آیدی عددی اول (خودت)
-    8304730388       # ⚠️ آیدی عددی اکانت دوم (پشتیبانی) رو اینجا بذار (حتماً باید ربات رو استارت کرده باشه)
+    6202317657,     # آیدی عددی خودت
+    # 8304730388     # ⚠️ آیدی عددی پشتیبانی رو اینجا وارد کن (اگه نداری همینطوری کامنت بمونه)
 ]
 
-SUPPORT_USERNAME = "Sup_Bigbang"  # یوزرنیم پشتیبانی خودت رو بدون @ اینجا بنویس
+SUPPORT_USERNAME = "Sup_Bigbang"
 
-# منوی شیشه‌ای محصولات (داخل پیام)
+# لینک کانال‌های آرشیو رایگان پارسال
+FREE_ZIST_LINK = "https://t.me/BigbangBiology"  
+FREE_SHIMI_LINK = "https://t.me/BigbangBiology"  
+
+# منوی محصولات اصلی (شیشه‌ای - داخل پیام)
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
@@ -23,13 +27,20 @@ def get_main_markup():
     )
     return markup
 
-# کیبورد ثابت (پایین صفحه چت برای کاربر)
+# کیبورد ثابت (پایین صفحه چت برای کاربر) شامل دکمه‌های رایگان پارسال
 def get_persistent_keyboard():
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     button_start = telebot.types.KeyboardButton("🚀 منوی اصلی / شروع")
+    
+    # دکمه‌های رایگان پارسال در کنار هم در پایین صفحه
+    button_free_zist = telebot.types.KeyboardButton("🎁 زیست پارسال (رایگان)")
+    button_free_shimi = telebot.types.KeyboardButton("🎁 شیمی پارسال (رایگان)")
+    
     button_support = telebot.types.KeyboardButton("💬 ارتباط با پشتیبانی")
     button_help = telebot.types.KeyboardButton("راهنمای خرید 📄")
+    
     keyboard.add(button_start)
+    keyboard.add(button_free_zist, button_free_shimi)
     keyboard.add(button_support, button_help)
     return keyboard
 
@@ -43,10 +54,10 @@ def send_welcome(message):
         reply_markup=get_main_markup(), 
         parse_mode="Markdown"
     )
-    # ارسال کیبورد پایین صفحه در همان لحظه استارت
+    # ارسال کیبورد پایین صفحه
     bot.send_message(
         message.chat.id,
-        "👇 دکمه‌های دسترسی سریع در پایین صفحه فعال شدند:",
+        "👇 دسترسی سریع به منوها و آرشیوهای رایگان از طریق دکمه‌های پایین صفحه:",
         reply_markup=get_persistent_keyboard()
     )
 
@@ -72,36 +83,30 @@ def process_buy(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, 
                           text=text, parse_mode="Markdown")
 
-# هندلر برای دریافت عکس یا سند (فیش واریزی)
+# هندلر دریافت فیش واریزی (عکس یا سند)
 @bot.message_handler(content_types=['photo', 'document'])
 def handle_receipt(message):
     user_id = message.from_user.id
     user_name = message.from_user.first_name
     username = message.from_user.username
     
-    if username:
-        chat_link = f"https://t.me/{username}"
-        user_info = f"@{username}"
-    else:
-        chat_link = "ندارد"
-        user_info = "بدون آیدی متنی"
+    chat_info = f"@{username}" if username else "بدون آیدی"
     
     markup = telebot.types.InlineKeyboardMarkup()
     if username:
-        markup.add(telebot.types.InlineKeyboardButton("💬 چت مستقیم با کاربر", url=chat_link))
+        markup.add(telebot.types.InlineKeyboardButton("💬 چت مستقیم با کاربر", url=f"https://t.me/{username}"))
     markup.add(telebot.types.InlineKeyboardButton("✅ تایید فیش (بررسی شد)", callback_data=f"approve_{user_id}"))
     
     caption = (
         f"📩 فیش واریزی جدید!\n\n"
         f"👤 نام: {user_name}\n"
-        f"🔗 آیدی: {user_info}\n"
+        f"🔗 آیدی: {chat_info}\n"
         f"🆔 آی‌دی عددی: `{user_id}`\n\n"
         "برای تایید روی دکمه زیر بزنید."
     )
     
     file_id = message.photo[-1].file_id if message.photo else message.document.file_id
     
-    # ارسال فیش به همه ادمین‌های لیست
     for admin_id in ADMIN_IDS:
         try:
             bot.send_photo(admin_id, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
@@ -109,18 +114,22 @@ def handle_receipt(message):
             print(f"خطا در ارسال به ادمین {admin_id}: {e}")
     
     user_markup = telebot.types.InlineKeyboardMarkup()
-    user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی و ارسال سوال", url=f"https://t.me/{SUPPORT_USERNAME}"))
+    user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
     
     bot.send_message(
         message.chat.id, 
-        "✅ فیش شما دریافت شد.\n"
-        "پس از بررسی توسط مدیریت، دسترسی برای شما ارسال خواهد شد.\n\n"
-        "اگر سوالی داری یا می‌خوای پیگیر بشی، از طریق دکمه زیر با پشتیبانی در ارتباط باش:",
+        "✅ فیش شما دریافت شد.\nپس از بررسی توسط مدیریت، دسترسی ارسال خواهد شد.",
         reply_markup=user_markup
     )
 
-# هندلر برای دکمه‌های ثابت پایین صفحه
-@bot.message_handler(func=lambda message: message.text in ["🚀 منوی اصلی / شروع", "💬 ارتباط با پشتیبانی", "راهنمای خرید 📄"])
+# هندلر جامع برای دکمه‌های ثابت پایین صفحه (شامل منو، پشتیبانی، راهنما و آرشیوهای رایگان)
+@bot.message_handler(func=lambda message: message.text in [
+    "🚀 منوی اصلی / شروع", 
+    "💬 ارتباط با پشتیبانی", 
+    "راهنمای خرید 📄", 
+    "🎁 زیست پارسال (رایگان)", 
+    "🎁 شیمی پارسال (رایگان)"
+])
 def handle_persistent_buttons(message):
     user_markup = telebot.types.InlineKeyboardMarkup()
     user_markup.add(telebot.types.InlineKeyboardButton("💬 چت با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
@@ -130,6 +139,22 @@ def handle_persistent_buttons(message):
             message.chat.id,
             "سلام دوباره! به منوی اصلی برگشتیم. محصول مورد نظرت رو انتخاب کن:",
             reply_markup=get_main_markup()
+        )
+    elif message.text == "🎁 زیست پارسال (رایگان)":
+        free_zist_markup = telebot.types.InlineKeyboardMarkup()
+        free_zist_markup.add(telebot.types.InlineKeyboardButton("🔗 ورود به کانال زیست پارسال", url=FREE_ZIST_LINK))
+        bot.send_message(
+            message.chat.id,
+            "🎁 این هم هدیه شما؛ برای دریافت بانک تست زیست پارسال به صورت کاملاً رایگان، روی دکمه زیر بزنید:",
+            reply_markup=free_zist_markup
+        )
+    elif message.text == "🎁 شیمی پارسال (رایگان)":
+        free_shimi_markup = telebot.types.InlineKeyboardMarkup()
+        free_shimi_markup.add(telebot.types.InlineKeyboardButton("🔗 ورود به کانال شیمی پارسال", url=FREE_SHIMI_LINK))
+        bot.send_message(
+            message.chat.id,
+            "🎁 این هم هدیه شما؛ برای دریافت بانک تست شیمی پارسال به صورت کاملاً رایگان، روی دکمه زیر بزنید:",
+            reply_markup=free_shimi_markup
         )
     elif message.text == "💬 ارتباط با پشتیبانی":
         bot.send_message(
@@ -149,19 +174,19 @@ def handle_persistent_buttons(message):
             reply_markup=user_markup
         )
 
-# هندلر برای بقیه متن‌های متفرقه که کاربر می‌فرستد
+# هندلر متن‌های متفرقه
 @bot.message_handler(func=lambda message: True)
-def handle_text_messages(message):
+def handle_text(message):
     user_markup = telebot.types.InlineKeyboardMarkup()
     user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
     
     bot.send_message(
         message.chat.id,
-        "⚠️ لطفاً برای ارسال فیش واریزی، **فقط عکس یا اسکرین‌شات فیش** را همینجا ارسال کنید.\n\n"
-        "اگر سوالی دارید یا در فرآیند خرید به مشکل برخوردید، از طریق دکمه زیر با پشتیبانی در ارتباط باشید:",
+        "⚠️ لطفاً برای ارسال فیش واریزی، **فقط عکس یا اسکرین‌شات فیش** را ارسال کنید.",
         reply_markup=user_markup
     )
 
+# هندلر تایید فیش توسط ادمین
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_"))
 def approve_user(call):
     if call.from_user.id not in ADMIN_IDS:
@@ -175,17 +200,16 @@ def approve_user(call):
     
     bot.send_message(
         user_id, 
-        "✅ فیش واریزی شما تایید شد!\n"
-        "برای دریافت لینک دسترسی یا پشتیبانی از طریق دکمه زیر با ما در ارتباط باشید:", 
+        "✅ فیش واریزی شما تایید شد!\nبرای دریافت لینک دسترسی با پشتیبانی در ارتباط باشید:", 
         reply_markup=user_markup
     )
     
     bot.edit_message_caption(
         chat_id=call.message.chat.id, 
         message_id=call.message.message_id, 
-        caption=call.message.caption + f"\n\n🟢 **وضعیت: تایید شد توسط ادمین**", 
+        caption=call.message.caption + "\n\n🟢 **وضعیت: تایید شد توسط ادمین**", 
         parse_mode="Markdown"
     )
 
 print("ربات با موفقیت روشن شد و در حال گوش دادن است...")
-bot.infinity_polling()
+bot.infinity_polling(skip_pending=True)
