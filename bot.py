@@ -35,17 +35,18 @@ def get_persistent_keyboard():
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    # ابتدا کیبورد ثابت زیر صفحه را ثبت می‌کنیم
     bot.send_message(
         message.chat.id, 
-        "سلام! به ربات بیگ بنگ خوش آمدید.\n\n⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**\nمحصول مورد نظرت رو انتخاب کن:", 
+        "به ربات بیگ بنگ خوش آمدید 👋\nاز کیبورد زیر می‌توانید به منو دسترسی داشته باشید.",
+        reply_markup=get_persistent_keyboard()
+    )
+    # سپس پیام منوی محصولات همراه با دکمه‌های شیشه‌ای ارسال می‌شود
+    bot.send_message(
+        message.chat.id, 
+        "سلام! محصولات مورد نظرت رو انتخاب کن:\n\n⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**", 
         reply_markup=get_main_markup(), 
         parse_mode="Markdown"
-    )
-    # ارسال کیبورد ثابت پایین صفحه
-    bot.send_message(
-        message.chat.id,
-        "👇 از دکمه‌های زیر صفحه هم می‌تونی برای دسترسی سریع استفاده کنی:",
-        reply_markup=get_persistent_keyboard()
     )
 
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
