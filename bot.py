@@ -25,7 +25,7 @@ def get_main_markup():
 
 # کیبورد ثابت (پایین صفحه چت برای کاربر)
 def get_persistent_keyboard():
-    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, persistent=True)
+    keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     button_start = telebot.types.KeyboardButton("🚀 منوی اصلی / شروع")
     button_support = telebot.types.KeyboardButton("💬 ارتباط با پشتیبانی")
     button_help = telebot.types.KeyboardButton("راهنمای خرید 📄")
@@ -35,18 +35,19 @@ def get_persistent_keyboard():
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    # ابتدا کیبورد ثابت زیر صفحه را ثبت می‌کنیم
     bot.send_message(
         message.chat.id, 
-        "به ربات بیگ بنگ خوش آمدید 👋\nاز کیبورد زیر می‌توانید به منو دسترسی داشته باشید.",
-        reply_markup=get_persistent_keyboard()
-    )
-    # سپس پیام منوی محصولات همراه با دکمه‌های شیشه‌ای ارسال می‌شود
-    bot.send_message(
-        message.chat.id, 
-        "سلام! محصولات مورد نظرت رو انتخاب کن:\n\n⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**", 
+        "سلام! به ربات بیگ بنگ خوش آمدید.\n\n"
+        "⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**\n"
+        "محصول مورد نظرت رو از منوی زیر انتخاب کن:", 
         reply_markup=get_main_markup(), 
         parse_mode="Markdown"
+    )
+    # ارسال کیبورد پایین صفحه در همان لحظه استارت
+    bot.send_message(
+        message.chat.id,
+        "👇 دکمه‌های دسترسی سریع در پایین صفحه فعال شدند:",
+        reply_markup=get_persistent_keyboard()
     )
 
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
@@ -163,7 +164,6 @@ def handle_text_messages(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("approve_"))
 def approve_user(call):
-    # چک کردن اینکه آیا کاربری که دکمه رو زده ادمین هست یا نه
     if call.from_user.id not in ADMIN_IDS:
         bot.answer_callback_query(call.id, "❌ شما دسترسی ادمین ندارید!", show_alert=True)
         return
