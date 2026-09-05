@@ -13,24 +13,24 @@ SUPPORT_USERNAME = "Sup_Bigbang"
 
 # لینک کانال‌های آرشیو رایگان پارسال
 FREE_ZIST_LINK = "https://t.me/Bigbangzist"  
-FREE_SHIMI_LINK = "https://t.me/BigbangChem"  
+FREE_SHIMI_LINK = "https://t.me/Bigbangchem"  
 
 # دیکشنری موقت برای نگهداری محصول انتخابی هر کاربر تا زمان ارسال فیش
 user_selected_product = {}
 
-# منوی محصولات اصلی (شیشه‌ای - داخل پیام)
+# منوی محصولات اصلی با قیمت‌های اصلی و واقعی خودت
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - 499 هزار تومان ", callback_data="buy_zist"),
-        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - 449 هزار تومان ", callback_data="shimi"),
-        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - 419 هزار تومان ", callback_data="fizik"),
-        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - 449 هزار تومان ", callback_data="math"),
-        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست) - 1,500,000 تومان (تخفیف ویژه )", callback_data="full_4")
+        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - 499,000 تومان", callback_data="buy_zist"),
+        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - 449,000 تومان", callback_data="shimi"),
+        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - 419,000 تومان", callback_data="fizik"),
+        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - 449,000 تومان", callback_data="math"),
+        telebot.types.InlineKeyboardButton("📦 پکیج کامل (هر ۴ بانک تست با تخفیف) - 1,500,000 تومان", callback_data="full_4")
     )
     return markup
 
-# کیبورد ثابت (پایین صفحه چت برای کاربر) شامل دکمه‌های رایگان پارسال
+# کیبورد ثابت (پایین صفحه چت برای کاربر)
 def get_persistent_keyboard():
     keyboard = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
     button_start = telebot.types.KeyboardButton("🚀 منوی اصلی / شروع")
@@ -39,11 +39,11 @@ def get_persistent_keyboard():
     button_free_shimi = telebot.types.KeyboardButton("🎁 شیمی پارسال (رایگان)")
     
     button_support = telebot.types.KeyboardButton("💬 ارتباط با پشتیبانی")
-    button_help = telebot.types.KeyboardButton("راهنمای خرید 📄")
+    button_details = telebot.types.KeyboardButton("توضیحات بانک تست‌ها 📚")
     
     keyboard.add(button_start)
     keyboard.add(button_free_zist, button_free_shimi)
-    keyboard.add(button_support, button_help)
+    keyboard.add(button_support, button_details)
     return keyboard
 
 @bot.message_handler(commands=['start'])
@@ -51,7 +51,6 @@ def send_welcome(message):
     bot.send_message(
         message.chat.id, 
         "سلام! به ربات بیگ بنگ خوش آمدید.\n\n"
-        "⚠️ **تخفیف‌های ویژه فقط تا پایان امروز برقرار است!**\n"
         "محصول مورد نظرت رو از منوی زیر انتخاب کن:", 
         reply_markup=get_main_markup(), 
         parse_mode="Markdown"
@@ -79,14 +78,14 @@ def process_buy(call):
     
     text = (
         f"💳 خرید {item_name}\n\n"
-        f"💰 مبلغ قابل پرداخت: {price} تومان\n"
+        f"💰 مبلغ قابل پرداخت: {price} تومان\n\n"
         f"شماره کارت: `5022291535771289` به نام سیدحمیدرضامحسنی راد\n\n"
         "لطفاً واریز کن و عکس فیش رو همینجا بفرست تا بررسی کنم."
     )
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, 
                           text=text, parse_mode="Markdown")
 
-# هندلر دریافت فیش واریزی (عکس یا سند) با ذکر نام محصول
+# هندلر دریافت فیش واریزی با ذکر دقیق نام محصول
 @bot.message_handler(content_types=['photo', 'document'])
 def handle_receipt(message):
     user_id = message.from_user.id
@@ -95,7 +94,6 @@ def handle_receipt(message):
     
     chat_info = f"@{username}" if username else "بدون آیدی"
     
-    # برداشتن نام محصولی که کاربر انتخاب کرده بود (اگر انتخاب نکرده بود می‌نویسد نامشخص)
     product_purchased = user_selected_product.get(user_id, "نامشخص / از منو انتخاب نشده")
     
     markup = telebot.types.InlineKeyboardMarkup()
@@ -134,7 +132,7 @@ def handle_receipt(message):
 @bot.message_handler(func=lambda message: message.text in [
     "🚀 منوی اصلی / شروع", 
     "💬 ارتباط با پشتیبانی", 
-    "راهنمای خرید 📄", 
+    "توضیحات بانک تست‌ها 📚", 
     "🎁 زیست پارسال (رایگان)", 
     "🎁 شیمی پارسال (رایگان)"
 ])
@@ -170,14 +168,31 @@ def handle_persistent_buttons(message):
             "برای ارتباط مستقیم با پشتیبانی و پرسیدن سوالات خود، روی دکمه زیر بزنید:",
             reply_markup=user_markup
         )
-    elif message.text == "راهنمای خرید 📄":
+    elif message.text == "توضیحات بانک تست‌ها 📚":
         bot.send_message(
             message.chat.id,
-            "📄 **راهنمای خرید بانک‌های تست بیگ بنگ:**\n\n"
-            "۱. از منوی بالا محصول مورد نظرت رو انتخاب کن.\n"
-            "۲. مبلغ رو به شماره کارت نوشته شده واریز کن.\n"
-            "۳. عکس اسکرین‌شات یا رسید فیش واریزی رو همینجا بفرست.\n"
-            "۴. پس از تایید توسط مدیریت، فایل یا لینک دسترسی برات ارسال میشه.",
+            "🔥 پرواز به سمت درصد ۱۰۰ با بانک تست‌های خفنِ «بیگ‌بنگ»! 🔥\n\n"
+            "رفیق، اگر دنبال اینی که تو کنکور بترکونی و دیگه توی درس‌های اختصاصی لنگ هیچ منبعی نباشی، درست اومدی! ما اینجا گلِ سرسبدِ سوالات آزمون‌های معتبر کشور رو برات یکجا جمع کردیم تا هیچ نکته‌ای از دستت در نره. 🎯\n\n"
+            "📌 تو این پکیج چی داریم؟\n\n"
+            "🧬 **زیست‌شناسی:**\n"
+            "🔹 ماز (سالیانه و پرمیوم) | زیستاز (سالیانه و پیشرفته) | خیلی سبز (سالیانه و پلاس) | آرمان\n\n"
+            "🧪 **شیمی:**\n"
+            "🔹 قلم‌چی | ماز | ماراتون | خیلی سبز\n\n"
+            "⚗️ **فیزیک:**\n"
+            "🔹 قلم‌چی | ماز | ماراتون | خیلی سبز | مدارس برتر\n\n"
+            "📐 **ریاضی:**\n"
+            "🔹 قلم‌چی | ماراتون | خیلی سبز | ماز | مدارس برتر | آلفا\n\n"
+            "🚀 چرا بانک تست بیگ‌بنگ بی‌رقیبه؟\n\n"
+            "💯 **پوشش صددرصدی:** تمام مباحث، فعالیت‌ها و ریزبه‌ریزِ تمرین‌های کتاب درسی رو شخم زدیم؛ هیچ چیزی از قلم نیفتفته!\n\n"
+            "🧠 **توسط رتبه‌برترها و طراحان:** سوالات توسط رتبه‌های برتر کنکور (۱۴۰۳ تا ۱۴۰۵) و طراحان مطرح آزمون‌ها گلچین شدن تا کیفیت کار صددرصد تضمینی باشه.\n\n"
+            "📈 **همگام با سختی کنکور:** سوالات دقیقاً متناسب با سطح دشواری کنکور طراحی شدن تا توی جلسه آزمون هیچ سورپرایزی برات وجود نداشته باشه.\n\n"
+            "💪 برای چه سطحی مناسبه؟\n"
+            "• پایه متوسط و قوی داری؟ ازت یه غولِ بی‌رقیب می‌سازیم!\n"
+            "• پایه ضعیفی داری؟ کاری می‌کنیم خودت با دیدن پیشرفتت شاخ درآری!\n\n"
+            "🛡 خیالت راحتِ راحت؛ تضمین ۱۰۰ درصدی!\n"
+            "انقدر از کارمون مطمئنیم که تضمین برگشت وجه در صورت نارضایتی گذاشتیم تا با خیالِ تختِ تخت خرید کنی.\n\n"
+            "💡 با این بانک تست، پرونده‌ی کتاب‌های کمک‌درسی قطور و گیج‌کننده برای همیشه بسته میشه و کاملاً بی‌نیاز میشی.\n\n"
+            "👇 همین الان از منوی بالا محصول مورد نظرت رو انتخاب کن و جایگاهت رو بین رتبه‌برترها تثبیت کن:",
             parse_mode="Markdown",
             reply_markup=user_markup
         )
