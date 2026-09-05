@@ -85,7 +85,7 @@ def process_buy(call):
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, 
                           text=text, parse_mode="Markdown")
 
-# هندلر دریافت فیش واریزی با ذکر دقیق نام محصول
+# هندلر دریافت فیش واریزی (عکس یا سند)
 @bot.message_handler(content_types=['photo', 'document'])
 def handle_receipt(message):
     user_id = message.from_user.id
@@ -110,13 +110,20 @@ def handle_receipt(message):
         "برای تایید روی دکمه زیر بزنید."
     )
     
-    file_id = message.photo[-1].file_id if message.photo else message.document.file_id
-    
-    for admin_id in ADMIN_IDS:
-        try:
-            bot.send_photo(admin_id, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
-        except Exception as e:
-            print(f"خطا در ارسال به ادمین {admin_id}: {e}")
+    if message.photo:
+        file_id = message.photo[-1].file_id
+        for admin_id in ADMIN_IDS:
+            try:
+                bot.send_photo(admin_id, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
+            except Exception as e:
+                print(f"خطا در ارسال به ادمین {admin_id}: {e}")
+    elif message.document:
+        file_id = message.document.file_id
+        for admin_id in ADMIN_IDS:
+            try:
+                bot.send_document(admin_id, file_id, caption=caption, reply_markup=markup, parse_mode="Markdown")
+            except Exception as e:
+                print(f"خطا در ارسال به ادمین {admin_id}: {e}")
     
     user_markup = telebot.types.InlineKeyboardMarkup()
     user_markup.add(telebot.types.InlineKeyboardButton("💬 ارتباط با پشتیبانی", url=f"https://t.me/{SUPPORT_USERNAME}"))
