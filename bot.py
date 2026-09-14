@@ -22,11 +22,11 @@ user_selected_product = {}
 def get_main_markup():
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
     markup.add(
-        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - 400,000 تومان", callback_data="buy_zist"),
-        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - 350,000 تومان", callback_data="shimi"),
-        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - 320,000 تومان", callback_data="fizik"),
-        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - 350,000 تومان", callback_data="math"),
-        telebot.types.InlineKeyboardButton("📦 هر 4 بانک تست (پکیج کامل با تخفیف) - 1,200,000 تومان", callback_data="full_4")
+        telebot.types.InlineKeyboardButton("🧬 بانک تست زیست جامع - 499,000 تومان", callback_data="buy_zist"),
+        telebot.types.InlineKeyboardButton("🧪 بانک تست شیمی جامع - 449,000 تومان", callback_data="shimi"),
+        telebot.types.InlineKeyboardButton("💡 بانک تست فیزیک جامع - 419,000 تومان", callback_data="fizik"),
+        telebot.types.InlineKeyboardButton("📐 بانک تست ریاضی جامع - 449,000 تومان", callback_data="math"),
+        telebot.types.InlineKeyboardButton("📦 هر 4 بانک تست (پکیج کامل با تخفیف) - 1,500,000 تومان", callback_data="full_4")
     )
     return markup
 
@@ -64,11 +64,11 @@ def send_welcome(message):
 @bot.callback_query_handler(func=lambda call: call.data in ["buy_zist", "shimi", "fizik", "math", "full_4"])
 def process_buy(call):
     prices = {
-        "buy_zist": ("بانک تست زیست جامع", "400,000"),
-        "shimi": ("بانک تست شیمی جامع", "350,000"),
-        "fizik": ("بانک تست فیزیک جامع", "320,000"),
-        "math": ("بانک تست ریاضی جامع", "350,000"),
-        "full_4": ("هر 4 بانک تست (پکیج کامل با تخفیف)", "1,200,000")
+        "buy_zist": ("بانک تست زیست جامع", "499,000"),
+        "shimi": ("بانک تست شیمی جامع", "449,000"),
+        "fizik": ("بانک تست فیزیک جامع", "419,000"),
+        "math": ("بانک تست ریاضی جامع", "449,000"),
+        "full_4": ("هر 4 بانک تست (پکیج کامل با تخفیف)", "1,500,000")
     }
     
     item_name, price = prices[call.data]
